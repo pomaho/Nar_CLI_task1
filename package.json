@@ -1,0 +1,29 @@
+{
+  "name": "grnfd-nar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "grnfd-nar": "./build/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "pkg . --targets node14-macos-x64 --output grnfd-nar"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "pkg": {
+    "scripts": "build/**/*.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.2.5",
+    "@types/yargs": "^17.0.24",
+    "pkg": "^5.8.1",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@bnb-chain/greenfield-chain-sdk": "^0.2.0",
+    "yargs": "^17.7.2"
+  }
+}
