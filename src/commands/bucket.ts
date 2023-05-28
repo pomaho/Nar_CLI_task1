@@ -1,7 +1,8 @@
 import type { Arguments, CommandBuilder } from 'yargs';
-import {Client, TxResponse} from '@bnb-chain/greenfield-chain-sdk';
+import {TxResponse} from '@bnb-chain/greenfield-chain-sdk';
 import {QueryHeadBucketResponse} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {BucketProps} from '@bnb-chain/greenfield-chain-sdk/dist/esm/types/storage';
+import CliClient from '../modules/client';
 
 type Options = {
     subcommand: string;
@@ -27,16 +28,15 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
     const subCommandKey = subcommand as keyof Subcommands;
 
     if (typeof subCommands[subCommandKey] === 'function') {
-        const client = Client.create('https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org', '5600');
-        const result = await subCommands[subCommandKey](client, options);
+        const result = await subCommands[subCommandKey](options);
         console.log(result);
     }
     process.exit(0);
 };
 
-const createBucket = async (client: Client, commandOptions: string[]): Promise<TxResponse> => {
+const createBucket = async (commandOptions: string[]): Promise<TxResponse> => {
     const bucketName = commandOptions[0];
-    return await client.bucket.createBucket({
+    return await CliClient.client.bucket.createBucket({
         bucketName: bucketName,
         creator: '0xCc9DB4cf17b3c5B21811921b40C6f34e55f99fB2',
         visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
@@ -54,15 +54,15 @@ const createBucket = async (client: Client, commandOptions: string[]): Promise<T
     });
 };
 
-const headBucket = async (client: Client, commandOptions: string[]): Promise<QueryHeadBucketResponse> => {
+const headBucket = async (commandOptions: string[]): Promise<QueryHeadBucketResponse> => {
     const bucketName = commandOptions[0];
-    return await client.bucket.headBucket(bucketName);
+    return await CliClient.client.bucket.headBucket(bucketName);
 };
 
-const getUserBuckets = async (client: Client, commandOptions: string[]): Promise<Array<BucketProps>> => {
+const getUserBuckets = async (commandOptions: string[]): Promise<Array<BucketProps>> => {
     const address = (commandOptions[0] as string).replace(/\"/g, '');
     console.log('getUserBuckets');
-    const getUserBucketsResult = await client.bucket.getUserBuckets({
+    const getUserBucketsResult = await CliClient.client.bucket.getUserBuckets({
         address,
         endpoint: 'https://gnfd-testnet-sp-1.bnbchain.org'
     });
