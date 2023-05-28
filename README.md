@@ -9,15 +9,6 @@ npm install
 npx tsc
 ```
 
-```bash
-chmod u+x ./build/cli.js
-```
-And now you can test first query for getting info about bucket 'nat-test1'
-
-```bash
-./build/cli.js bucket nat-test1 --head
-```
-
 Create package for make executable CLI module
 ```bash
 npm i pkg -D
