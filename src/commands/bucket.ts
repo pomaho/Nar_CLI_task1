@@ -1,8 +1,7 @@
 import type { Arguments, CommandBuilder } from 'yargs';
 import {Client, TxResponse} from '@bnb-chain/greenfield-chain-sdk';
 import {QueryHeadBucketResponse} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
-import {VisibilityType} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import {ISpInfo} from '@bnb-chain/greenfield-chain-sdk/dist/esm/types/storage';
+import {BucketProps} from '@bnb-chain/greenfield-chain-sdk/dist/esm/types/storage';
 
 type Options = {
     subcommand: string;
@@ -12,6 +11,7 @@ type Options = {
 type Subcommands = {
     head: Function;
     create: Function;
+    userBuckets: Function;
 }
 export const command: string = 'bucket <subcommand> [options..]';
 export const desc: string = 'Call <subcommand> with [options..] for work with buckets in Greenfield';
@@ -22,17 +22,15 @@ export const builder: CommandBuilder<Options, Options> = (yargs) =>
 
 export const handler = async (argv: Arguments<Options>): Promise<void> => {
     const {subcommand, options} = argv;
-    const greeting = `Hello, ${subcommand}!`;
     console.log(JSON.stringify(argv));
 
     const subCommandKey = subcommand as keyof Subcommands;
 
     if (typeof subCommands[subCommandKey] === 'function') {
         const client = Client.create('https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org', '5600');
-        console.log(await subCommands[subCommandKey](client, options));
+        const result = await subCommands[subCommandKey](client, options);
+        console.log(result);
     }
-
-    process.stdout.write(options ? greeting.toUpperCase() : greeting);
     process.exit(0);
 };
 
@@ -54,15 +52,6 @@ const createBucket = async (client: Client, commandOptions: string[]): Promise<T
             ]
         }
     });
-
-    /**
-     * https://gnfd-testnet-sp-1.bnbchain.org
-     * https://gnfd-testnet-sp-2.bnbchain.org
-     * https://gnfd-testnet-sp-3.bnbchain.org
-     * https://gnfd-testnet-sp-4.bnbchain.org
-     * https://gnfd-testnet-sp-5.bnbchain.org
-     */
-
 };
 
 const headBucket = async (client: Client, commandOptions: string[]): Promise<QueryHeadBucketResponse> => {
@@ -70,7 +59,22 @@ const headBucket = async (client: Client, commandOptions: string[]): Promise<Que
     return await client.bucket.headBucket(bucketName);
 };
 
+const getUserBuckets = async (client: Client, commandOptions: string[]): Promise<Array<BucketProps>> => {
+    const address = (commandOptions[0] as string).replace(/\"/g, '');
+    console.log('getUserBuckets');
+    const getUserBucketsResult = await client.bucket.getUserBuckets({
+        address,
+        endpoint: 'https://gnfd-testnet-sp-1.bnbchain.org'
+    });
+    let buckets: BucketProps[] = [];
+    if (getUserBucketsResult.body && getUserBucketsResult.body.length) {
+        buckets = getUserBucketsResult.body;
+    }
+    return buckets;
+};
+
 const subCommands = {
     head: headBucket,
-    create: createBucket
+    create: createBucket,
+    userBuckets: getUserBuckets,
 };

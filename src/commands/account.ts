@@ -29,12 +29,11 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
         console.log(await subCommands[subCommandKey](client, options));
     }
 
-    process.stdout.write(options ? greeting.toUpperCase() : greeting);
     process.exit(0);
 };
 
 const getAccount = async (client: Client, commandOptions: string[]): Promise<BaseAccount> => {
-    const address = (commandOptions[0] as string).replace('/"/g', '');
+    const address = (commandOptions[0] as string).replace(/\"/g, '');
     return await client.account.getAccount(address);
 };
 
