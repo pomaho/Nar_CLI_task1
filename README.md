@@ -29,5 +29,5 @@ npm run package
 Call our CLI for same query for backet 'nat-test1'
 
 ```bash
-./grnfd-nar bucket nat-test1 --head
+./grnfd-nar bucket head nat-test1
 ```
