@@ -1,31 +1,47 @@
 import type { Arguments, CommandBuilder } from 'yargs';
 import {Client} from "@bnb-chain/greenfield-chain-sdk";
+import {QueryHeadBucketResponse} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 
 type Options = {
-    name: string;
     head: boolean | undefined;
+    subcommand: string;
+    options: string[];
 };
 
-export const command: string = 'bucket <name>';
-export const desc: string = 'Greet <name> with Hello';
+type Subcommands = {
+    head: Function;
+}
+export const command: string = 'bucket <subcommand> [options..]';
+export const desc: string = 'Call <subcommand> with [options..] for work with buckets in Greenfield';
 
 export const builder: CommandBuilder<Options, Options> = (yargs) =>
     yargs
         .options({
             head: { type: 'boolean' },
         })
-        .positional('name', { type: 'string', demandOption: true });
+        .positional('subcommand', { type: 'string', demandOption: true });
 
 export const handler = async (argv: Arguments<Options>): Promise<void> => {
-    const { name, head } = argv;
-    const greeting = `Hello, ${name}!`;
+    const {subcommand, options} = argv;
+    const greeting = `Hello, ${subcommand}!`;
+    console.log(JSON.stringify(argv));
 
-    const client = Client.create('https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org', '5600');
-    if (head) {
-        const buckets = await client.bucket.headBucket(name);
-        console.log(buckets)
+    const subCommandKey = subcommand as keyof Subcommands;
+
+    if (typeof subCommands[subCommandKey] === 'function') {
+        const client = Client.create('https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org', '5600');
+        console.log(await subCommands[subCommandKey](client, options));
     }
 
-    process.stdout.write(head ? greeting.toUpperCase() : greeting);
+    process.stdout.write(options ? greeting.toUpperCase() : greeting);
     process.exit(0);
+};
+
+const headBucket = async (client: Client, commandOptions: string[]): Promise<QueryHeadBucketResponse> => {
+    const bucketName = commandOptions[0];
+    return await client.bucket.headBucket(bucketName);
+};
+
+const subCommands = {
+    head: headBucket
 };
