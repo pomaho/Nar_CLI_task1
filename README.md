@@ -9,16 +9,24 @@ npm install
 npx tsc
 ```
 
-Create package for make executable CLI module
-```bash
-npm i pkg -D
-```
+Make cli.js executable
 
 ```bash
-npm run package
+chmod u+x ./build/cli.js
 ```
-Call our CLI for same query for backet 'nat-test1'
+
+Call our CLI to get info about bucket 'nat-test1'
 
 ```bash
-./grnfd-nar bucket head nat-test1
+./build/cli.js bucket head nat-test1
+```
+
+Get all user's buckets
+```bash
+./build/cli.js bucket userBuckets '"0x1cfC76dE9589952925a414842FF5ac3eb57A6483"'
+```
+
+Get user info
+```bash
+./build/cli.js account get '"0x1cfC76dE9589952925a414842FF5ac3eb57A6483"'
 ```
